@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:safetyapp/child/bottom_page.dart';
 import 'package:safetyapp/db/share_pref.dart';
 import 'package:safetyapp/home_screen.dart';
 import 'package:safetyapp/parent/parent_home_screen.dart';
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
                 return LoginScreen();
               }
               if(snapshot.data=="child"){
-                return HomeScreen();
+                return BottomPage();
               }
               if(snapshot.data=="parent"){
                 return ParentHomeScreen();
@@ -50,7 +51,6 @@ class MyApp extends StatelessWidget {
               return progressIndicator(context);
             }), 
         );
-        //home: HomeScreen());
   }
 }
 //class CheckAuth extends StatelessWidget {

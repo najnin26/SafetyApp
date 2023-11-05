@@ -30,37 +30,39 @@ void initState(){
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomAppBar(
-                  onTap: getRandomQuote,
-                  quoteIndex: qIndex,
-                ),
-                CustomCarousel(),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Emergency",
-                    style:
-                    TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
+        child: SingleChildScrollView(
+          child: Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomAppBar(
+                    onTap: getRandomQuote,
+                    quoteIndex: qIndex,
                   ),
-                ),
-                Emergency(),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Explore LiveSafe",
-                    style:
-                    TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
+                  CustomCarousel(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Emergency",
+                      style:
+                      TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                LiveSafe(),
-                SafeHome(),
-              ],
+                  Emergency(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Explore LiveSafe",
+                      style:
+                      TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  LiveSafe(),
+                  SafeHome(),
+                ],
+              ),
             ),
           ),
         ),

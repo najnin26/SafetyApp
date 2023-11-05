@@ -5,20 +5,20 @@ class SafeHome extends StatelessWidget {
 
   showModelSafeHome(BuildContext context){
     showModalBottomSheet(
-     context: context,
-     builder: (context){
-         return Container(
-             height: MediaQuery.of(context).size.height/1.4,
-             decoration: BoxDecoration(
-               color: Colors.white,
-               borderRadius: BorderRadius.only(
-                   topLeft: Radius.circular(20),
-                   topRight: Radius.circular(20),
-               ),
-             ),
-         );
-       },
-   );
+      context: context,
+      builder: (context){
+        return Container(
+          height: MediaQuery.of(context).size.height/1.4,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+        );
+      },
+    );
   }
   @override
   Widget build(BuildContext context) {
