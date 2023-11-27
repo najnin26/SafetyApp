@@ -47,6 +47,7 @@ dependencies:
   shared_preferences: ^2.2.2
   permission_handler: ^11.0.1
   contacts_service: ^0.6.3
+  sqflite: ^2.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

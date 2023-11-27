@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:safetyapp/child/register_child.dart';
 import 'package:safetyapp/compontnts/custom_textfield.dart';
 import 'package:safetyapp/db/share_pref.dart';
-import 'package:safetyapp/home_screen.dart';
+import 'package:safetyapp/child/bottom_screens/child_home_page.dart';
 import 'package:safetyapp/parent/parent_register_screen.dart';
 import 'package:safetyapp/utils/constants.dart';
 

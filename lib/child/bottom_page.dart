@@ -3,7 +3,7 @@ import 'package:safetyapp/child/bottom_screens/chat_page.dart';
 import 'package:safetyapp/child/bottom_screens/contacts_page.dart';
 import 'package:safetyapp/child/bottom_screens/profile_page.dart';
 
-import '../home_screen.dart';
+import 'bottom_screens/child_home_page.dart';
 import 'bottom_screens/add_contacts.dart';
 import 'bottom_screens/review_page.dart';
 
@@ -18,7 +18,7 @@ class _BottomPageState extends State<BottomPage> {
   int currentIndex = 0;
   List<Widget> pages = [
     HomeScreen(),
-    ContactPage(),
+    AddContactsPage(),
     ChatPage(),
     ProfilePage(),
     //AddContactsPage(),

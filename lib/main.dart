@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:safetyapp/child/bottom_page.dart';
 import 'package:safetyapp/db/share_pref.dart';
-import 'package:safetyapp/home_screen.dart';
+import 'package:safetyapp/child/bottom_screens/child_home_page.dart';
 import 'package:safetyapp/parent/parent_home_screen.dart';
 import 'package:safetyapp/utils/constants.dart';
 import 'child/child_login_screen.dart';
