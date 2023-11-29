@@ -21,7 +21,6 @@ class _BottomPageState extends State<BottomPage> {
     AddContactsPage(),
     ChatPage(),
     ProfilePage(),
-    //AddContactsPage(),
     //CheckUserStatusBeforeChat(),
     //CheckUserStatusBeforeChatOnProfile(),
     ReviewPage(),
