@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:safetyapp/child/bottom_page.dart';
 import 'package:safetyapp/child/register_child.dart';
 import 'package:safetyapp/compontnts/custom_textfield.dart';
 import 'package:safetyapp/db/share_pref.dart';
@@ -47,10 +48,10 @@ class _LoginScreenState extends State<LoginScreen> {
             goTo(context, ParentHomeScreen());
           }else{
             MySharedPrefference.saveUserType('child');
-            goTo(context,HomeScreen());
+            goTo(context,BottomPage());
           }
         });
-        goTo(context, HomeScreen());
+        //goTo(context, HomeScreen());
       }
     } on FirebaseAuthException catch (e) {
       setState(() {

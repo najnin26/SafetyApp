@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:safetyapp/utils/quotes.dart';
 import 'package:safetyapp/widgets/home_widgets/custom_appBar.dart';
@@ -15,17 +14,17 @@ class HomeScreen extends StatefulWidget{
 class _HomeScreenState extends State<HomeScreen> {
   //const HomeScreen({super.key});
   int qIndex = 0;
-getRandomQuote(){
-  Random random = Random();
-  setState(() {
-    qIndex=random.nextInt(sweetSayings.length);
-  });
-}
-@override
-void initState(){
-  getRandomQuote();
-  super.initState();
-}
+  getRandomQuote(){
+    Random random = Random();
+    setState(() {
+      qIndex=random.nextInt(sweetSayings.length);
+    });
+  }
+  @override
+  void initState(){
+    getRandomQuote();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,4 +69,3 @@ void initState(){
     );
   }
 }
-

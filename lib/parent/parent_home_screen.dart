@@ -60,14 +60,14 @@ class ParentHomeScreen extends StatelessWidget {
                   child: ListTile(
                     //onTap: () {
                     //  goTo(
-                        //  context,
-                         // ChatScreen(
-                            //  currentUserId:
-                           //   FirebaseAuth.instance.currentUser!.uid,
-                            //  friendId: d.id,
-                            //  friendName: d['name']));
-                      // Navigator.push(context, MaterialPa)
-                   // },
+                    //  context,
+                    // ChatScreen(
+                    //  currentUserId:
+                    //   FirebaseAuth.instance.currentUser!.uid,
+                    //  friendId: d.id,
+                    //  friendName: d['name']));
+                    // Navigator.push(context, MaterialPa)
+                    // },
                     title: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(d['name']),
