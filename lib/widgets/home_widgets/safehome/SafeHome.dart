@@ -1,4 +1,3 @@
-
 import 'package:background_sms/background_sms.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -107,27 +106,27 @@ class _SafeHomeState extends State<SafeHome> {
                 SizedBox(height: 10),
                 PrimaryButton(
                     title: "GET ALERT", onPressed: () async{
-                      List<TContact> contactList=await DatabaseHelper().getContactList();
-                      String recipients="";
-                      int i=1;
-                      for(TContact contact in contactList){
-                        recipients +=contact.number;
-                        if(i!=contactList.length){
-                          recipients+=';';
-                          i++;
-                        }
-                      }
-                      String messageBody=
-                          "https://www.google.com/maps/search/?api=1&query=${_curentPosition?.latitude ?? 0}%2C${_curentPosition?.longitude ?? 0}. ${_curentAddress ?? ''}";
-                      if(await _isPermissionGranted()){
-                        contactList.forEach((element) {
-                          _sendSms("${element.number}",
-                            "i am in trouble $messageBody");
-                        });
-                      } else {
-                        Fluttertoast.showToast(msg: "something wrong");
-                      }
-                    }),
+                  List<TContact> contactList=await DatabaseHelper().getContactList();
+                  String recipients="";
+                  int i=1;
+                  for(TContact contact in contactList){
+                    recipients +=contact.number;
+                    if(i!=contactList.length){
+                      recipients+=';';
+                      i++;
+                    }
+                  }
+                  String messageBody=
+                      "https://www.google.com/maps/search/?api=1&query=${_curentPosition?.latitude ?? 0}%2C${_curentPosition?.longitude ?? 0}. ${_curentAddress ?? ''}";
+                  if(await _isPermissionGranted()){
+                    contactList.forEach((element) {
+                      _sendSms("${element.number}",
+                          "i am in trouble $messageBody");
+                    });
+                  } else {
+                    Fluttertoast.showToast(msg: "something wrong");
+                  }
+                }),
               ],
             ),
           ),

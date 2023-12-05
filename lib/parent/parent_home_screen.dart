@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../chat_module/chat_screen.dart';
 import '../child/child_login_screen.dart';
 import '../utils/constants.dart';
-
 class ParentHomeScreen extends StatelessWidget {
   const ParentHomeScreen({Key? key}) : super(key: key);
 
@@ -58,16 +58,16 @@ class ParentHomeScreen extends StatelessWidget {
                 child: Container(
                   color: Color.fromARGB(255, 250, 163, 192),
                   child: ListTile(
-                    //onTap: () {
-                    //  goTo(
-                    //  context,
-                    // ChatScreen(
-                    //  currentUserId:
-                    //   FirebaseAuth.instance.currentUser!.uid,
-                    //  friendId: d.id,
-                    //  friendName: d['name']));
-                    // Navigator.push(context, MaterialPa)
-                    // },
+                    onTap: () {
+                      goTo(
+                          context,
+                          ChatScreen(
+                              currentUserId:
+                              FirebaseAuth.instance.currentUser!.uid,
+                              friendId: d.id,
+                              friendName: d['name']));
+                      // Navigator.push(context, MaterialPa)
+                    },
                     title: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(d['name']),
