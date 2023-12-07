@@ -1,20 +1,17 @@
 import 'package:background_sms/background_sms.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:safetyapp/db/db_services.dart';
-import 'package:safetyapp/model/contactsm.dart';
-
 import '../../../compontnts/PrimaryButton.dart';
+import '../../../db/db_services.dart';
+import '../../../model/contactsm.dart';
 
 class SafeHome extends StatefulWidget {
-
   @override
   State<SafeHome> createState() => _SafeHomeState();
 }
-
 class _SafeHomeState extends State<SafeHome> {
   Position? _curentPosition;
   String? _curentAddress;
@@ -34,38 +31,48 @@ class _SafeHomeState extends State<SafeHome> {
       }
     });
   }
-  _getCurrentLocation() async{
-    permission=await Geolocator.checkPermission();
-    if(permission==LocationPermission.denied){
-      permission=await Geolocator.requestPermission();
-      Fluttertoast.showToast(
-          msg: 'Location permissions are denied.');
-      if(permission==LocationPermission.deniedForever){
-        Fluttertoast.showToast(
-            msg: 'Location permissions are permanently denied.');
+  Future<void> _getCurrentLocation() async {
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        Fluttertoast.showToast(msg: 'Location permissions are denied.');
+        if (permission == LocationPermission.deniedForever) {
+          Fluttertoast.showToast(msg: 'Location permissions are permanently denied.');
+        }
       }
-    }
-    Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      forceAndroidLocationManager: true,
-    ).then((Position position) {
-      setState(() {
-        _curentPosition = position;
-        print(_curentPosition!.latitude);
-        _getAddressFromLatLon();
-      });
-    }).catchError((e) {
+
+      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+        bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!isLocationEnabled) {
+          Fluttertoast.showToast(msg: 'Location services are not enabled.');
+          return;
+        }
+
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+          forceAndroidLocationManager: true,
+        );
+
+        setState(() {
+          _curentPosition = position;
+          print(_curentPosition!.latitude);
+          _getAddressFromLatLon();
+        });
+      }
+    } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
-    });
+    }
   }
-  _getAddressFromLatLon() async {
+  Future<void> _getAddressFromLatLon() async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
-          _curentPosition!.latitude, _curentPosition!.longitude);
+        _curentPosition!.latitude,
+        _curentPosition!.longitude,
+      );
       Placemark place = placemarks[0];
       setState(() {
-        _curentAddress =
-        "${place.locality},${place.postalCode},${place.street},";
+        _curentAddress = "${place.locality}, ${place.postalCode}, ${place.street},";
       });
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
