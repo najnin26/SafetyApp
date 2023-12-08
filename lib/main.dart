@@ -6,7 +6,6 @@ import 'package:safetyapp/child/bottom_page.dart';
 import 'package:safetyapp/db/share_pref.dart';
 import 'package:safetyapp/parent/parent_home_screen.dart';
 import 'package:safetyapp/utils/constants.dart';
-import 'package:safetyapp/utils/quotes.dart';
 import 'child/child_login_screen.dart';
 
 void main() async {
@@ -17,6 +16,7 @@ void main() async {
       appId: '1:213071786703:android:351df1cbbd53bb39c37dba',
       messagingSenderId: '213071786703',
       projectId: 'women-safety-sos-7496c',
+      storageBucket: "gs://women-safety-sos-7496c.appspot.com",
     ),
   );
   await MySharedPrefference.init();
@@ -44,9 +44,10 @@ class MyApp extends StatelessWidget {
         nextScreen: FutureBuilder(
           future: MySharedPrefference.getUserType(),
           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-            if(snapshot.data==""){
+            if(snapshot.data == null || snapshot.data == ""){
               return LoginScreen();
             }
+
             if(snapshot.data=="child"){
               return BottomPage();
             }

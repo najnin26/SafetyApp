@@ -31,53 +31,68 @@ class _SafeHomeState extends State<SafeHome> {
       }
     });
   }
-  Future<void> _getCurrentLocation() async {
-    try {
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        Fluttertoast.showToast(msg: 'Location permissions are denied.');
-        if (permission == LocationPermission.deniedForever) {
-          Fluttertoast.showToast(msg: 'Location permissions are permanently denied.');
-        }
-      }
 
-      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
-        if (!isLocationEnabled) {
-          Fluttertoast.showToast(msg: 'Location services are not enabled.');
-          return;
-        }
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
 
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          forceAndroidLocationManager: true,
-        );
-
-        setState(() {
-          _curentPosition = position;
-          print(_curentPosition!.latitude);
-          _getAddressFromLatLon();
-        });
-      }
-    } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
     }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
   }
-  Future<void> _getAddressFromLatLon() async {
+
+  _getCurrentLocation() async {
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        forceAndroidLocationManager: true)
+        .then((Position position) {
+      setState(() {
+        _curentPosition = position;
+        print(_curentPosition!.latitude);
+        _getAddressFromLatLon();
+      });
+    }).catchError((e) {
+      Fluttertoast.showToast(msg: e.toString());
+    });
+  }
+
+  _getAddressFromLatLon() async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
-        _curentPosition!.latitude,
-        _curentPosition!.longitude,
-      );
+          _curentPosition!.latitude, _curentPosition!.longitude);
+
       Placemark place = placemarks[0];
       setState(() {
-        _curentAddress = "${place.locality}, ${place.postalCode}, ${place.street},";
+        _curentAddress =
+        "${place.locality},${place.postalCode},${place.street},";
       });
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
     }
   }
+
   @override
   void initState() {
     super.initState();

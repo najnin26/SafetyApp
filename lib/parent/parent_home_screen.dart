@@ -15,7 +15,14 @@ class ParentHomeScreen extends StatelessWidget {
         child: Column(
           children: [
             DrawerHeader(
-              child: Container(),
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/logo.png'), // Replace with your image path
+                    fit: BoxFit.contain, // Adjust the fit as needed
+                  ),
+                ),
+              ),
             ),
             ListTile(
                 title: TextButton(

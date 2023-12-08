@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -6,17 +8,14 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:io';
 
+import '../main.dart';
 class MessageTextField extends StatefulWidget {
   final String currentId;
   final String friendId;
 
-  const MessageTextField({
-    Key? key,
-    required this.currentId,
-    required this.friendId,
-  }) : super(key: key);
+  const MessageTextField(
+      {super.key, required this.currentId, required this.friendId});
 
   @override
   State<MessageTextField> createState() => _MessageTextFieldState();
@@ -24,16 +23,25 @@ class MessageTextField extends StatefulWidget {
 
 class _MessageTextFieldState extends State<MessageTextField> {
   TextEditingController _controller = TextEditingController();
-  Position? _currentPosition;
-  String? _currentAddress;
+  Position? _curentPosition;
+  String? _curentAddress;
   String? message;
   File? imageFile;
 
   LocationPermission? permission;
-
-  Future getImage(ImageSource source) async {
+  Future getImage() async {
     ImagePicker _picker = ImagePicker();
-    await _picker.pickImage(source: source).then((XFile? xFile) {
+    await _picker.pickImage(source: ImageSource.gallery).then((XFile? xFile) {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+        uploadImage();
+      }
+    });
+  }
+
+  Future getImageFromCamera() async {
+    ImagePicker _picker = ImagePicker();
+    await _picker.pickImage(source: ImageSource.camera).then((XFile? xFile) {
       if (xFile != null) {
         imageFile = File(xFile.path);
         uploadImage();
@@ -42,90 +50,89 @@ class _MessageTextFieldState extends State<MessageTextField> {
   }
 
   Future uploadImage() async {
+    String fileName = Uuid().v1();
+    int status = 1;
+    var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
     try {
-      String fileName = Uuid().v1();
-      var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
-      var uploadTask = await ref.putFile(imageFile!);
-      String imageUrl = await uploadTask.ref.getDownloadURL();
-      await sendMessage(imageUrl, 'img');
+      await ref.putFile(imageFile!);
+      status = 2; // Set status to successful upload
     } catch (e) {
-      Fluttertoast.showToast(msg: 'Failed to upload image: $e');
+      print(e.toString()); // Handle upload error
+    }
+
+    if (status == 2) {
+      String imageUrl = await ref.getDownloadURL();
+      await sendMessage(imageUrl, 'img');
     }
   }
 
-  Future<void> _getCurrentLocation() async {
+
+  Future _getCurrentLocation() async {
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      Fluttertoast.showToast(msg: "Location permissions are denied");
+      Fluttertoast.showToast(msg: "Location permissions are  denind");
       if (permission == LocationPermission.deniedForever) {
-        Fluttertoast.showToast(msg: "Location permissions are permanently denied");
+        Fluttertoast.showToast(
+            msg: "Location permissions are permanently denind");
       }
     }
-
-    try {
-      Position position = await Geolocator.getCurrentPosition(
+    Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
-        forceAndroidLocationManager: true,
-      );
-
+        forceAndroidLocationManager: true)
+        .then((Position position) {
       setState(() {
-        _currentPosition = position;
+        _curentPosition = position;
+        print(_curentPosition!.latitude);
         _getAddressFromLatLon();
       });
-    } catch (e) {
-      Fluttertoast.showToast(msg: 'Failed to get current location: $e');
-    }
+    }).catchError((e) {
+      Fluttertoast.showToast(msg: e.toString());
+    });
   }
 
-  Future<void> _getAddressFromLatLon() async {
+  _getAddressFromLatLon() async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
-        _currentPosition!.latitude,
-        _currentPosition!.longitude,
-      );
+          _curentPosition!.latitude, _curentPosition!.longitude);
 
       Placemark place = placemarks[0];
       setState(() {
-        _currentAddress = "${place.locality}, ${place.postalCode}, ${place.street}";
+        _curentAddress =
+        "${place.locality},${place.postalCode},${place.street},";
       });
     } catch (e) {
-      Fluttertoast.showToast(msg: 'Failed to get address: $e');
+      Fluttertoast.showToast(msg: e.toString());
     }
   }
 
-  Future<void> sendMessage(String message, String type) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.currentId)
-          .collection('messages')
-          .doc(widget.friendId)
-          .collection('chats')
-          .add({
-        'senderId': widget.currentId,
-        'receiverId': widget.friendId,
-        'message': message,
-        'type': type,
-        'date': DateTime.now(),
-      });
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.friendId)
-          .collection('messages')
-          .doc(widget.currentId)
-          .collection('chats')
-          .add({
-        'senderId': widget.currentId,
-        'receiverId': widget.friendId,
-        'message': message,
-        'type': type,
-        'date': DateTime.now(),
-      });
-    } catch (e) {
-      Fluttertoast.showToast(msg: 'Failed to send message: $e');
-    }
+  sendMessage(String message, String type) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.currentId)
+        .collection('messages')
+        .doc(widget.friendId)
+        .collection('chats')
+        .add({
+      'senderId': widget.currentId,
+      'receiverId': widget.friendId,
+      'message': message,
+      'type': type,
+      'date': DateTime.now(),
+    });
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.friendId)
+        .collection('messages')
+        .doc(widget.currentId)
+        .collection('chats')
+        .add({
+      'senderId': widget.currentId,
+      'receiverId': widget.friendId,
+      'message': message,
+      'type': type,
+      'date': DateTime.now(),
+    });
   }
 
   @override
@@ -145,23 +152,21 @@ class _MessageTextFieldState extends State<MessageTextField> {
                 cursorColor: Colors.pink,
                 controller: _controller,
                 decoration: InputDecoration(
-                  hintText: 'Type your message',
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  prefixIcon: IconButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        backgroundColor: Colors.transparent,
-                        context: context,
-                        builder: (context) => bottomSheet(),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.add_box_rounded,
-                      color: Colors.pink,
-                    ),
-                  ),
-                ),
+                    hintText: 'type your message',
+                    fillColor: Colors.grey[100],
+                    filled: true,
+                    prefixIcon: IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            builder: (context) => bottomsheet(),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.add_box_rounded,
+                          color: Colors.pink,
+                        ))),
               ),
             ),
             Padding(
@@ -185,7 +190,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
     );
   }
 
-  Widget bottomSheet() {
+  bottomsheet() {
     return Container(
       height: MediaQuery.of(context).size.height * 0.2,
       width: double.infinity,
@@ -195,19 +200,19 @@ class _MessageTextFieldState extends State<MessageTextField> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            chatsIcon(Icons.location_pin, "Location", () async {
+            chatsIcon(Icons.location_pin, "location", () async {
               await _getCurrentLocation();
               Future.delayed(Duration(seconds: 2), () {
                 message =
-                "https://www.google.com/maps/search/?api=1&query=${_currentPosition!.latitude}%2C${_currentPosition!.longitude}. $_currentAddress";
+                "https://www.google.com/maps/search/?api=1&query=${_curentPosition!.latitude}%2C${_curentPosition!.longitude}. $_curentAddress";
                 sendMessage(message!, "link");
               });
             }),
             chatsIcon(Icons.camera_alt, "Camera", () async {
-              await getImage(ImageSource.camera);
+              await getImageFromCamera();
             }),
             chatsIcon(Icons.insert_photo, "Photo", () async {
-              await getImage(ImageSource.gallery);
+              await getImage();
             }),
           ],
         ),
@@ -215,7 +220,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
     );
   }
 
-  Widget chatsIcon(IconData icon, String title, VoidCallback onTap) {
+  chatsIcon(IconData icons, String title, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       child: Column(
@@ -224,7 +229,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
           CircleAvatar(
             radius: 30,
             backgroundColor: Colors.pink,
-            child: Icon(icon),
+            child: Icon(icons),
           ),
           Text("$title")
         ],

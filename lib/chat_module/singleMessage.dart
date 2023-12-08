@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class SingleMessage extends StatelessWidget {
   final String? message;
   final bool? isMe;
@@ -66,17 +65,9 @@ class SingleMessage extends StatelessWidget {
               Divider(),
               Align(
                   alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: ( )async {
-                      await launchUrl(Uri.parse('$message'));
-                    },
-                    child: Text(
-                      message!,
-                      style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 16,
-                          color: Colors.white),
-                    ),
+                  child: Text(
+                    message!,
+                    style: TextStyle(fontSize: 18, color: Colors.white),
                   )),
               Divider(),
               Align(

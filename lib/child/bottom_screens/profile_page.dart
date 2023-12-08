@@ -155,8 +155,22 @@ class _ProfilePageState extends State<ProfilePage> {
                                 msg: 'please select profile picture')
                                 : update();
                           }
-                        })
-                  ],
+                        }),
+                    ListTile(
+                        title: TextButton(
+                            onPressed: () async {
+                              try {
+                                await FirebaseAuth.instance.signOut();
+                                goTo(context, LoginScreen());
+                              } on FirebaseAuthException catch (e) {
+                                dialogueBox(context, e.toString());
+                              }
+                            },
+                            child: Text(
+                              "SING OUT",
+                            ))),
+
+              ],
                 )),
           ),
         ),
