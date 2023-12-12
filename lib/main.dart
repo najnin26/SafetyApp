@@ -1,4 +1,3 @@
-import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,18 +35,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: AnimatedSplashScreen(
-        duration: 4000, // Adjust the duration as needed
-        splash: Image.asset(
-            'assets/splash.jpg'
-        ),
-        nextScreen: FutureBuilder(
+      home:FutureBuilder(
           future: MySharedPrefference.getUserType(),
-          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-            if(snapshot.data == null || snapshot.data == ""){
+          builder: (BuildContext context,AsyncSnapshot snapshot){
+            if(snapshot.data==""){
               return LoginScreen();
             }
-
             if(snapshot.data=="child"){
               return BottomPage();
             }
@@ -55,12 +48,8 @@ class MyApp extends StatelessWidget {
               return ParentHomeScreen();
             }
             return progressIndicator(context);
-          },
-        ),
-        splashTransition: SplashTransition.fadeTransition,
-        backgroundColor: Colors.white, // Change the background color as needed
-        splashIconSize: 250.0, // Adjust the size of the splash image
-      ),
+          }),
     );
+    //home: HomeScreen());
   }
 }
