@@ -8,7 +8,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shake/shake.dart';
 import 'package:telephony/telephony.dart';
-import 'package:vibration/vibration.dart';
 import '../db/db_services.dart';
 import '../model/contactsm.dart';
 
@@ -96,19 +95,6 @@ void onStart(ServiceInstance service) async {
             shakeCountResetTime: 3000,
             minimumShakeCount: 1,
             onPhoneShake: () async {
-              if (await Vibration.hasVibrator() ?? false) {
-                print("Test 2");
-                if (await Vibration.hasCustomVibrationsSupport() ?? false) {
-                  print("Test 3");
-                  Vibration.vibrate(duration: 1000);
-                } else {
-                  print("Test 4");
-                  Vibration.vibrate();
-                  await Future.delayed(Duration(milliseconds: 500));
-                  Vibration.vibrate();
-                }
-                print("Test 5");
-              }
               String messageBody =
                   "https://www.google.com/maps/search/?api=1&query=${_curentPosition!.latitude}%2C${_curentPosition!.longitude}";
               sendMessage(messageBody);
