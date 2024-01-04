@@ -1,18 +1,23 @@
+
 import 'dart:math';
+
+import 'package:background_sms/background_sms.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:safetyapp/utils/quotes.dart';
-import 'package:safetyapp/widgets/home_widgets/custom_appBar.dart';
-import 'package:safetyapp/widgets/home_widgets/emergency.dart';
-import 'package:telephony/telephony.dart';
-import 'package:safetyapp/widgets/home_widgets/CustomCarouel.dart';
+import 'package:shake/shake.dart';
+
 import '../../db/db_services.dart';
 import '../../model/contactsm.dart';
+import '../../utils/quotes.dart';
+import '../../widgets/home_widgets/CustomCarouel.dart';
+import '../../widgets/home_widgets/custom_appBar.dart';
+import '../../widgets/home_widgets/emergency.dart';
 import '../../widgets/home_widgets/safehome/SafeHome.dart';
 import '../../widgets/life_safe.dart';
+
 class HomeScreen extends StatefulWidget{
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -23,41 +28,29 @@ class _HomeScreenState extends State<HomeScreen> {
   int qIndex = 0;
   Position? _curentPosition;
   String? _curentAddress;
-  _getPermission() async => await [Permission.sms].request();
+  LocationPermission? permission;
+  _getPermission() async=> await [Permission.sms].request();
   _isPermissionGranted() async => await Permission.sms.status.isGranted;
-  Future<bool> _handleLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location services are disabled. Please enable the services')));
-      return false;
+  _sendSms(String phoneNumber, String message, {int? simSlot}) async {
+    SmsStatus result = await BackgroundSms.sendMessage(
+        phoneNumber: phoneNumber, message: message, simSlot: 1);
+    if (result == SmsStatus.sent) {
+      print("Sent");
+      Fluttertoast.showToast(msg: "send");
+    } else {
+      Fluttertoast.showToast(msg: "failed");
     }
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permissions are denied')));
-        return false;
-      }
-    }
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location permissions are permanently denied, we cannot request permissions.')));
-      return false;
-    }
-    return true;
   }
   _getCurrentLocation() async {
-    final hasPermission = await _handleLocationPermission();
-    final Telephony telephony = Telephony.instance;
-    await telephony.requestPhoneAndSmsPermissions;
-    if (!hasPermission) return;
+    permission = await Geolocator.checkPermission();
+    if (permission==LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      Fluttertoast.showToast(msg: "Location permissions are denied.");
+      if(permission==LocationPermission.deniedForever){
+        await Geolocator.requestPermission();
+        Fluttertoast.showToast(msg: "Location permissions are permanently denied.");
+      }
+    }
     await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         forceAndroidLocationManager: true)
@@ -86,22 +79,29 @@ class _HomeScreenState extends State<HomeScreen> {
       Fluttertoast.showToast(msg: e.toString());
     }
   }
-
   getRandomQuote(){
     Random random = Random();
     setState(() {
       qIndex=random.nextInt(sweetSayings.length);
     });
   }
-
-  getAndSendSms() async {
-    List<TContact> contactList = await DatabaseHelper().getContactList();
-
-    String messageBody =
-        "https://maps.google.com/?daddr=${_curentPosition!.latitude},${_curentPosition!.longitude}";
-    if (await _isPermissionGranted()) {
+  getAndSendSmS() async{
+    List<TContact> contactList=await DatabaseHelper().getContactList();
+    String recipients="";
+    int i=1;
+    for(TContact contact in contactList) {
+      recipients += contact.number;
+      if (i != contactList.length) {
+        recipients += ';';
+        i++;
+      }
+    }
+      String messageBody=
+        "https://www.google.com/maps/search/?api=1&query=${_curentPosition!.latitude}%2C${_curentPosition!.longitude}";
+    if(await _isPermissionGranted()){
       contactList.forEach((element) {
-        // _sendSms("${element.number}", "i am in trouble $messageBody");
+        _sendSms("${element.number}",
+            "i am in trouble $messageBody");
       });
     } else {
       Fluttertoast.showToast(msg: "something wrong");
@@ -114,6 +114,21 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _getPermission();
     _getCurrentLocation();
+    ShakeDetector.autoStart(
+      onPhoneShake: () {
+        getAndSendSmS();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Shake!'),
+          ),
+        );
+        // Do stuff on phone shake
+      },
+      minimumShakeCount: 1,
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 3000,
+      shakeThresholdGravity: 2.7,
+    );
   }
 
   @override

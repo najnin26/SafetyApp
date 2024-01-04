@@ -5,7 +5,6 @@ import 'package:safetyapp/child/bottom_page.dart';
 import 'package:safetyapp/db/share_pref.dart';
 import 'package:safetyapp/parent/parent_home_screen.dart';
 import 'package:safetyapp/utils/constants.dart';
-import 'package:safetyapp/utils/flutter_background_services.dart';
 import 'child/child_login_screen.dart';
 
 void main() async {
@@ -20,7 +19,7 @@ void main() async {
     ),
   );
   await MySharedPrefference.init();
-  await initializeService();
+  //await initializeService();
   runApp(const MyApp());
 }
 class MyApp extends StatelessWidget {

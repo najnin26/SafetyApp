@@ -2,60 +2,67 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../../compontnts/PrimaryButton.dart';
-import '../../compontnts/custom_textfield.dart';
 class ReviewPage extends StatefulWidget {
   @override
-  State<ReviewPage> createState() => _ReviewPageState();
+  _ReviewPageState createState() => _ReviewPageState();
 }
 
 class _ReviewPageState extends State<ReviewPage> {
   TextEditingController locationC = TextEditingController();
   TextEditingController viewsC = TextEditingController();
+  TextEditingController searchController = TextEditingController();
   bool isSaving = false;
 
   showAlert(BuildContext context) {
     showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            title: Text("Review your place"),
-            content: Form(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CustomTextField(
-                        hintText: 'enter location',
-                        controller: locationC,
-                      ),
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text("Review your place"),
+          content: Form(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: 'Enter location',
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CustomTextField(
-                        controller: viewsC,
-                        hintText: 'enter message',
-                        maxLines: 3,
-                      ),
+                    controller: locationC,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: viewsC,
+                    decoration: InputDecoration(
+                      hintText: 'Enter message',
                     ),
-                  ],
-                )),
-            actions: [
-              PrimaryButton(
-                  title: "SAVE",
-                  onPressed: () {
-                    saveReview();
-                    Navigator.pop(context);
-                  }),
-              TextButton(
-                  child: Text("Cancel"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-            ],
-          );
-        });
+                    maxLines: 3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                saveReview();
+                Navigator.pop(context);
+              },
+              child: Text("SAVE"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   saveReview() async {
@@ -64,30 +71,46 @@ class _ReviewPageState extends State<ReviewPage> {
     });
     await FirebaseFirestore.instance
         .collection('reviews')
-        .add({'location': locationC.text, 'views': viewsC.text}).then((value) {
+        .add({'location': locationC.text, 'views': viewsC.text})
+        .then((value) {
       setState(() {
         isSaving = false;
-        Fluttertoast.showToast(msg: 'review uploaded successfully');
+        Fluttertoast.showToast(msg: 'Review uploaded successfully');
       });
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isSaving == true
+      body: isSaving
           ? Center(child: CircularProgressIndicator())
           : SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search by place...',
+                  hintStyle: TextStyle(color: Colors.black),
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                  });
+                },
+              ),
+            ),
             Text(
-              "Recent Review by other",
-              style: TextStyle(fontSize: 30, color: Colors.black),
+              "Recent Review by others",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Expanded(
               child: StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection('reviews')
+                    .where('location', isEqualTo: searchController.text)
                     .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -103,12 +126,13 @@ class _ReviewPageState extends State<ReviewPage> {
                         padding: const EdgeInsets.all(3.0),
                         child: Card(
                           elevation: 10,
-                          // color: Colors.primaries[Random().nextInt(17)],
                           child: ListTile(
                             title: Text(
                               data['location'],
                               style: TextStyle(
-                                  fontSize: 20, color: Colors.black),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             subtitle: Text(data['views']),
                           ),
@@ -131,4 +155,10 @@ class _ReviewPageState extends State<ReviewPage> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: ReviewPage(),
+  ));
 }

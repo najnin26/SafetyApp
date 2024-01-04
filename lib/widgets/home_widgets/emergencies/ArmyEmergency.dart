@@ -62,7 +62,7 @@ class ArmyEmergency extends StatelessWidget {
                         ),
                         Container(
                           height: 30,
-                          width: 70,
+                          width: 80,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -73,7 +73,7 @@ class ArmyEmergency extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.red[300],
                                 fontWeight: FontWeight.bold,
-                                fontSize: MediaQuery.of(context).size.width*0.055,
+                                fontSize: MediaQuery.of(context).size.width*0.050,
                               ),
                             ),
                           ),

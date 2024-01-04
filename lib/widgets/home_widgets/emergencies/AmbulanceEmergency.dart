@@ -63,7 +63,7 @@ class AmbulanceEmergency extends StatelessWidget {
                         ),
                         Container(
                           height: 30,
-                          width: 70,
+                          width: 80,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
