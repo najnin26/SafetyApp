@@ -23,4 +23,5 @@ Imagine an app that becomes their shield, their voice, their community in their 
 - Update profile
 - Registration an Login
 - Live safe (police station, hospital, pharmacy, bus station)
-
+## App ScreenShots
+<img src="https://github.com/najnin26/SafetyApp/blob/main/assets/splash.jpg">
