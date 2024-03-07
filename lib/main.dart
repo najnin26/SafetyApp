@@ -1,3 +1,4 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,33 +25,45 @@ void main() async {
 }
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Woman Safety Application',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        textTheme:GoogleFonts.firaSansTextTheme(
-          Theme.of(context).textTheme,
+        textTheme: GoogleFonts.firaSansTextTheme(
+          Theme
+              .of(context)
+              .textTheme,
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:FutureBuilder(
+      home: AnimatedSplashScreen(
+        duration: 4000,
+        splash: Image.asset(
+            'assets/splash.jpg'
+        ),
+        nextScreen: FutureBuilder(
           future: MySharedPrefference.getUserType(),
-          builder: (BuildContext context,AsyncSnapshot snapshot){
-            if(snapshot.data==""){
+          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            if (snapshot.data == "") {
               return LoginScreen();
             }
-            if(snapshot.data=="child"){
+            if (snapshot.data == "child") {
               return BottomPage();
             }
-            if(snapshot.data=="parent"){
+            if (snapshot.data == "parent") {
               return ParentHomeScreen();
             }
             return progressIndicator(context);
-          }),
+          },
+        ),
+        splashTransition: SplashTransition.fadeTransition,
+        backgroundColor: Colors.white,
+        splashIconSize: 250.0,
+      ),
     );
-    //home: HomeScreen());
   }
 }
