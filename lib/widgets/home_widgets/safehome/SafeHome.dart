@@ -64,16 +64,19 @@ class _SafeHomeState extends State<SafeHome> {
   _getCurrentLocation() async {
     final hasPermission = await _handleLocationPermission();
     if (!hasPermission) return;
-    await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        forceAndroidLocationManager: true)
-        .then((Position position) {
+    final LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 10, // set the distance filter as needed
+    );
+    Geolocator.getPositionStream(
+        locationSettings: locationSettings)
+        .listen((Position position) {
       setState(() {
         _curentPosition = position;
         print(_curentPosition!.latitude);
         _getAddressFromLatLon();
       });
-    }).catchError((e) {
+    }, onError: (e) {
       Fluttertoast.showToast(msg: e.toString());
     });
   }
